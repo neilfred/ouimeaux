@@ -34,7 +34,7 @@ class UnknownDevice(Exception):
 class Environment(object):
     def __init__(self, switch_callback=_NOOP, motion_callback=_NOOP,
                  with_discovery=True, with_subscribers=True, with_cache=None,
-                 bind=None, config_filename=None):
+                 subscriber_port=8989, bind=None, config_filename=None):
         """
         Create a WeMo environment.
 
@@ -61,6 +61,7 @@ class Environment(object):
         self._with_subscribers = with_subscribers
         self._switch_callback = switch_callback
         self._motion_callback = motion_callback
+        self._subscriber_port = subscriber_port
         self._switches = {}
         self._motions = {}
         self.devices = {}
@@ -150,7 +151,7 @@ class Environment(object):
         self.devices[device.name] = device
         registry[device.name] = device
         if self._with_subscribers:
-            self.registry.register(device)
+            self.registry.register(device, self._subscriber_port)
             self.registry.on(device, 'BinaryState',
                              device._update_state)
         with get_cache() as c:

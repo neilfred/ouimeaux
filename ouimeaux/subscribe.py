@@ -22,7 +22,8 @@ class SubscriptionRegistry(object):
         self._devices = {}
         self._callbacks = defaultdict(list)
 
-    def register(self, device):
+    def register(self, device, port=8989):
+        self._port = port
         if not device:
             log.error("Received an invalid device: %r", device)
             return
@@ -40,7 +41,7 @@ class SubscriptionRegistry(object):
         else:
             host = get_ip_address()
             headers.update({
-                "CALLBACK": '<http://%s:8989>' % host,
+                "CALLBACK": '<http://%s:%d>' % (host, self._port),
                 "NT": "upnp:event"
             })
         response = requests_request(method="SUBSCRIBE", url=url,
@@ -92,7 +93,7 @@ class SubscriptionRegistry(object):
         """
         server = getattr(self, "_server", None)
         if server is None:
-            server = WSGIServer(('', 8989), self._handle, log=None)
+            server = WSGIServer(('', self._port), self._handle, log=None)
             self._server = server
         return server
 
