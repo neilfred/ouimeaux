@@ -18,12 +18,12 @@ SUCCESS = '<html><body><h1>200 OK</h1></body></html>'
 
 
 class SubscriptionRegistry(object):
-    def __init__(self):
+    def __init__(self, port=8989):
         self._devices = {}
         self._callbacks = defaultdict(list)
-
-    def register(self, device, port=8989):
         self._port = port
+
+    def register(self, device):
         if not device:
             log.error("Received an invalid device: %r", device)
             return

@@ -53,7 +53,7 @@ class Environment(object):
         self._config = WemoConfiguration(filename=config_filename)
         self.upnp = UPnP(bind=bind or self._config.bind)
         discovered.connect(self._found_device, self.upnp)
-        self.registry = SubscriptionRegistry()
+        self.registry = SubscriptionRegistry(subscriber_port)
         if with_cache is None:
             with_cache = (self._config.cache if self._config.cache is not None else True)
         self._with_cache = with_cache
@@ -61,7 +61,6 @@ class Environment(object):
         self._with_subscribers = with_subscribers
         self._switch_callback = switch_callback
         self._motion_callback = motion_callback
-        self._subscriber_port = subscriber_port
         self._switches = {}
         self._motions = {}
         self.devices = {}
@@ -151,7 +150,7 @@ class Environment(object):
         self.devices[device.name] = device
         registry[device.name] = device
         if self._with_subscribers:
-            self.registry.register(device, self._subscriber_port)
+            self.registry.register(device)
             self.registry.on(device, 'BinaryState',
                              device._update_state)
         with get_cache() as c:
